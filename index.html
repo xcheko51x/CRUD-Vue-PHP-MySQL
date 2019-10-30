@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CRUD Vue, PHP y MySQL</title>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.js"></script>
+</head>
+<body>   
+    <div id="app" align="center" width="200">
+        <table border="0">
+            <thead align="center">
+                <th>ID</th>
+                <th>NOMBRE</th>
+                <th>TELEFONO</th>
+            </thead>
+            <tbody>
+                <tr v-for="(usuario, index) in usuarios">
+                    <td> {{ usuario.idUsuario }} </td>
+                    <td> {{ usuario.nombre }} </td>
+                    <td>  {{ usuario.telefono }} </td>
+                    <td> <button value="editar" @click="editUsuario(index, usuario.idUsuario)"> EDITAR </button> </td>
+                    <td> <button value="eliminar" @click="deleteUsuario(index, usuario.idUsuario)"> ELIMINAR </button> </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <label>Nombre: <input type="text" v-model='nombre' /></label> <br><br>
+        <label>Telefono: <input type="number" v-model='telefono'/></label> <br><br>
+        <button value="agregar" @click="addUsuario();"> REGISTRAR / EDITAR </button>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                usuarios: [],
+                nombre: '',
+                telefono: ''
+            },
+            methods: {
+                obtenerUsuarios: function() {
+                    axios.post('/PruebasCanal/CRUD.php', {
+                        request: 1
+                    })
+                    .then(function(response) {
+                        app.usuarios = response.data;
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    });
+                }, 
+
+                addUsuario: function() {
+                    if(this.nombre != '' && this.telefono != '') {
+                        axios.post('/PruebasCanal/CRUD.php', {
+                            request: 2,
+                            nombre: this.nombre,
+                            telefono: this.telefono
+                        })
+                        .then(function(response) {
+                            app.obtenerUsuarios();
+
+                            app.nombre = '';
+                            app.telefono = '';
+
+                            alert(response.data);
+                        })
+                        .catch(function () {
+                            console.log(error);
+                        });
+                    } else {
+                        alert("Llenar los campos.");
+                    }
+                },
+
+                editUsuario: function(index, idUsuario) {
+                    var nombre = this.nombre;
+                    var telefono = this.telefono;
+
+                    if(nombre != '' && telefono != '') {
+                        axios.post('/PruebasCanal/CRUD.php', {
+                            request: 3,
+                            idUsuario: idUsuario,
+                            nombre: nombre,
+                            telefono: telefono
+                        })
+                        .then(function(response) {
+                            app.obtenerUsuarios();
+                            app.nombre = '';
+                            app.telefono = '';
+                            alert(response.data);
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        });
+                    }
+                },
+
+                deleteUsuario: function(index, idUsuario) {
+                    axios.post('/PruebasCanal/CRUD.php', {
+                        request: 4,
+                        idUsuario: idUsuario
+                    })
+                    .then(function(response) {
+                        app.usuarios.splice(index, 1);
+                        alert(response.data);
+                    })
+                    .catch( function(error) {
+                        console.log(error);
+                    });
+                }
+            },
+
+            created: function() {
+                this.obtenerUsuarios();
+            }
+        })
+    </script>
+</body>
+</html>
