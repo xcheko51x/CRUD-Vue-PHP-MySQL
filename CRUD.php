@@ -18,7 +18,7 @@
       exit;
     }
 
-    // CREAD: Insertar registro en la base de datos
+    // CREATE: Insertar registro en la base de datos
     if($request == 2) {
 
       $nombre = $datos->nombre;
